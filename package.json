@@ -1,0 +1,22 @@
+{
+  "name": "servidorwebhistoria",
+  "version": "1.0.0",
+  "description": "Web de Historia",
+  "main": "index.js",
+  "scripts": {
+    "strat": "node .",
+    "dev": "nodemon ."
+  },
+  "author": "Jose Luis Dorado Moles",
+  "license": "ISC",
+  "dependencies": {
+    "apollo-server": "^2.14.2",
+    "bcryptjs": "^2.4.3",
+    "dotenv": "^8.2.0",
+    "jsonwebtoken": "^8.5.1",
+    "mongoose": "^5.9.18"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.4"
+  }
+}
