@@ -6,7 +6,7 @@ require('dotenv').config({
     path: 'variables.env'
 });
 
-// Conectar a lbbdd
+// Conectar a la bbdd
 connectarDB();
 
 
