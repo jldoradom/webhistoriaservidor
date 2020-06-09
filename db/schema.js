@@ -14,9 +14,21 @@ const typeDefs = gql`
         logros: [String]
         creado: String
     }
-
+    type Blog {
+        id: ID
+        titulo: String
+        imagen: String
+        descripcion: String
+        comentarios: [Comentario]
+        puntos: Int
+        usuario: ID
+    }
     type Token {
         token: String
+    }
+    type Comentario {
+        comentario: String
+        usuario: ID
     }
 
     input UsuarioInput {
@@ -28,28 +40,37 @@ const typeDefs = gql`
         curso: String!
         ies: String!
     }
-
     input AutenticarInput {
         email: String!
         password: String!
     }
-
+    input BlogInput {
+        titulo: String!
+        imagen: String!
+        descripcion: String!
+        usuario: ID!
+    }
     enum rol {
         NORMAL
         ADMIN
         
     }
+    type Query {
+        # Usuarios
+        obtenerUsuario(token: String!): Usuario
+        # Blog
+        obtenerBlogs: [Blog]
+        obtenerBlog(id: ID!): Blog
+        obtenerBlogsUsuario: [Blog]
 
+    }
     type Mutation {
         # Usuarios
         nuevoUsuario(input: UsuarioInput!): Usuario
         autenticarUsuario( input: AutenticarInput ): Token
+        # Blog
+        nuevoBlog(input: BlogInput!) : Blog 
 
-    }
-
-    type Query {
-        # Usuarios
-        obtenerUsuario(token: String!): Usuario
     }
 `;
 
