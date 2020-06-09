@@ -48,7 +48,7 @@ const typeDefs = gql`
         titulo: String!
         imagen: String!
         descripcion: String!
-        usuario: ID!
+        usuario: ID
     }
     enum rol {
         NORMAL
@@ -70,6 +70,8 @@ const typeDefs = gql`
         autenticarUsuario( input: AutenticarInput ): Token
         # Blog
         nuevoBlog(input: BlogInput!) : Blog 
+        actualizarBlog(id: ID!, input: BlogInput!) : Blog 
+        eliminarBlog(id: ID!) : String
 
     }
 `;

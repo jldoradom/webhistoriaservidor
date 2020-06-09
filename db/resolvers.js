@@ -16,13 +16,15 @@ const crearToken = (usuario, secreta, expiresIn) => {
 const resolvers = {
     // Querys de GraqhQl (consultas)
     Query: {
+        // Obtener el usuario 
         obtenerUsuario: async (_,{token}, ctx) => {
-            // Obtenemos el token del usuario
+            // Obtenemos el token del usuario por su token
             const usuarioId = await jwt.verify(token, process.env.SECRETA );
             
             return usuarioId;
 
         },
+        // Obtener todas las entradas del Blog
         obtenerBlogs: async () => {
             try {
                 const blogs = await Blog.find({});
@@ -31,6 +33,7 @@ const resolvers = {
                 console.log(error)
             }
         },
+        // Obtener todas las entradas del Blog del Usuario del context 
         obtenerBlogsUsuario: async(_,{}, ctx) => {
             try {
                 const blogs = await Blog.find({ usuario: ctx.usuario.id }).populate('usuarios');
@@ -39,6 +42,7 @@ const resolvers = {
                 console.log(error)
             }
         },
+        // Obtener entrada de Blog por su id del usuario del context
         obtenerBlog: async(_,{id},ctx) => {
             // Si el blog existe o no 
             const blog = await Blog.findById(id);
@@ -59,7 +63,7 @@ const resolvers = {
 
     // Mutations de GraqhQl (inserciones, actualizaciones y borrados)
     Mutation: {
-        // Funcion para crear un nuevo usuario
+        // Funcion para crear un nuevo usuario devuelve el usuario
         nuevoUsuario: async (_,{input}, ctx) => {
            // destructuring al input para obtener los datos del input
            const { email, password } = input;
@@ -84,6 +88,7 @@ const resolvers = {
             
 
         },
+        // Funcion para autenticar un usuario devuelve el token
         autenticarUsuario: async (_, {input}) =>{
             // destructuring al input para obtener los datos del input
             const  { email, password } = input
@@ -103,9 +108,10 @@ const resolvers = {
                 token: crearToken(existeUsuario, process.env.SECRETA, '24h' )
             }
         },
+        // Funcion para crear entrada del Blog devuelve la entrada
         nuevoBlog: async (_,{input},ctx) => {
             const { usuario } = input;
-            // Verificar si exite el cliente
+            // Verificar si exite el usuario
             let usuarioExiste  = await Usuario.findById(usuario);
             if(!usuarioExiste){
                throw new Error('El usuario no fue encontrado');
@@ -118,6 +124,52 @@ const resolvers = {
             try {
                 const resultado = await nuevoBlog.save();
                 return resultado;
+            } catch (error) {
+                console.log(error);
+            }
+
+        },
+        // Funcion para actualizar una entrada del Blog por su id del usuario del context o el admin devuelve la entrada actualizada
+        actualizarBlog: async (_, {id, input}, ctx) => {
+            // Verificar si la entrada de blog existe
+            const blogExiste  = await Blog.findById(id);
+            if(!blogExiste){
+               throw new Error('La entrada de Blog no fue encontrada');
+            }
+            // Si la entrada de Blog pertenece al usuario
+            if( blogExiste.usuario.toString() !== ctx.usuario.id ){
+                throw new Error('No estas autorizado para modificar esta entrada de Blog');
+ 
+            }
+            // TODO: Hacer que los usuarios con rol Admin puedan editarlo
+            
+            // Guardar la entrada del Blog
+            try {
+                const resultado = await Blog.findOneAndUpdate({_id:id}, input, {new: true});
+                return resultado;
+            } catch (error) {
+                console.log(error);
+            }
+
+        },
+        // Funcion para eliminar una entrada del Blog del usuario del context o admin
+        eliminarBlog: async (_,{id}, ctx) => {
+            // Verificar si la entrada de blog existe
+            const blogExiste  = await Blog.findById(id);
+            if(!blogExiste){
+               throw new Error('La entrada de Blog no fue encontrada');
+            }
+              // Si la entrada de Blog pertenece al usuario
+              if( blogExiste.usuario.toString() !== ctx.usuario.id ){
+                throw new Error('No estas autorizado para eliminar esta entrada de Blog');
+ 
+            }
+            // TODO: Hacer que los usuarios con rol Admin puedan editarlo
+
+            // Eliminamos la entrada del Blog
+            try {
+                const resultado = await Blog.findByIdAndDelete({_id: id});
+                return 'Entrada eliminada';
             } catch (error) {
                 console.log(error);
             }
