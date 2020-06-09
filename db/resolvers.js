@@ -1,27 +1,31 @@
 const Usuario = require('../models/Usuario');
 const bcryptjs = require('bcryptjs');
 const jwt = require('jsonwebtoken');
+require('dotenv').config({ path: 'variables.env' });
 
 const crearToken = (usuario, secreta, expiresIn) => {
     const { id, nombre, email, apellido  } = usuario
-    // devolvemos el jwt recibe el payload o info que se añade a la cabecera del jwt, la palabra secreta
+    // devolvemos el jwt recibe el payload (id, email, nombre, apellido) o info que se añade a la cabecera del jwt, la palabra secreta
     // para crear el token y el tiempo de expiracion
-    // 
     return jwt.sign( { id, email, nombre, apellido }, secreta, { expiresIn } );
 }
 
 
 // Resolver
 const resolvers = {
+    // Querys de GraqhQl (consultas)
     Query: {
-        obtenerUsuarios: (_,{input}, ctx) => {
-            // const resultado = usuarios.filter( usuario =>  usuario.nombre === input.nombre);
+        obtenerUsuario: async (_,{token}, ctx) => {
+            // Obtenemos el token del usuario
+            const usuarioId = await jwt.verify(token, process.env.SECRETA );
             
-            return 'obteniedo usuario';
+            return usuarioId;
 
         }
     },
+    // Mutations de GraqhQl (inserciones, actualizaciones y borrados)
     Mutation: {
+        // Funcion para crear un nuevo usuario
         nuevoUsuario: async (_,{input}, ctx) => {
            // destructuring al input para obtener los datos del input
            const { email, password } = input;

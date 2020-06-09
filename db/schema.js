@@ -49,7 +49,7 @@ const typeDefs = gql`
 
     type Query {
         # Usuarios
-        obtenerUsuarios: Usuario
+        obtenerUsuario(token: String!): Usuario
     }
 `;
 
