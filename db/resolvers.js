@@ -17,13 +17,22 @@ const crearToken = (usuario, secreta, expiresIn) => {
 const resolvers = {
     // Querys de GraqhQl (consultas)
     Query: {
-        // Obtener el usuario 
+        // Obtener el usuario del context
         obtenerUsuario: async (_,{token}, ctx) => {
             // Obtenemos el token del usuario por su token
             const usuarioId = await jwt.verify(token, process.env.SECRETA );
             
             return usuarioId;
 
+        },
+        // Funcion para ontener todos los usuarios
+        obtenerUsuarios: async () => {
+            try {
+                const usuarios = await Usuario.find({});
+                return usuarios;
+            } catch (error) {
+                console.log(error)
+            }
         },
         // Obtener todas las entradas del Blog
         obtenerBlogs: async () => {
@@ -233,6 +242,7 @@ const resolvers = {
                 console.log(error);
             }
         },
+        // Funcion para actualizar comentario por su id
         actualizarComentario: async (_,{id, input},ctx) => {
              // Verificar si la entrada de blog existe
              const comentario  = await Comentario.findById(id);
@@ -255,15 +265,16 @@ const resolvers = {
             }
 
         },
+        // Funcion para eliminar un comentario por su id 
         eliminarComentario: async (_,{id},ctx) => {
             // Verificar si el comentario existe
             const comentarioExiste  = await Comentario.findById(id);
             if(!comentarioExiste){
-               throw new Error('el comentario no fue encontrada');
+               throw new Error('El comentario no fue encontrada');
             }
               // Si el comentario pertenece al usuario
               if( comentarioExiste.usuario.toString() !== ctx.usuario.id ){
-                throw new Error('No estas autorizado para eliminar este comentario');
+                throw new Error('No estás autorizado para eliminar este comentario');
  
             }
             // TODO: Hacer que los usuarios con rol Admin puedan eliminarlo
@@ -272,6 +283,61 @@ const resolvers = {
             try {
                 const resultado = await Comentario.findByIdAndDelete({_id: id});
                 return 'Comentario eliminado';
+            } catch (error) {
+                console.log(error);
+            }
+
+        },
+        // Funcion para editar usuarios
+        editarUsuario: async (_,{input}, ctx) => {
+            // destructuring al input para obtener los datos del input
+           const { email, password } = input;
+           // Revisar si el usuario ya esta registrado, le pasamos un objeto con el email
+            const existeUsuario = await Usuario.findOne({email});
+           if(existeUsuario){
+               throw new Error('El usuario ya está registrado');
+           }
+            // sacamos el id del context
+            const id = ctx.usuario.id;
+            // Verificar si la entrada de blog existe
+            const usuario  = await Usuario.findById(id);
+            if(!usuario){
+               throw new Error('El usuario no fue encontrado');
+            }
+
+            // Hashear el password
+           const salt = await bcryptjs.genSaltSync(10);
+           input.password = await bcryptjs.hash(password, salt);
+           
+           // TODO: Hacer que los usuarios con rol Admin puedan editarlo
+           
+           // Guardar el Usuario
+           try {
+               const resultado = await Usuario.findOneAndUpdate({_id:id}, input, {new: true});
+               return resultado;
+           } catch (error) {
+               console.log(error);
+           }
+
+        },
+        // Funcion para eliminar un Usuario por su id
+        eliminarUsuario: async (_,{id}, ctx) => {
+            // Verificar si el comentario existe
+            const usuario  = await Usuario.findById(id);
+            if(!usuario){
+               throw new Error('El usuario no fue encontrado');
+            }
+            // El mismo usuario puede eliminarse
+            if( usuario._id.toString() !== ctx.usuario.id ){
+                throw new Error('No estás autorizado para eliminar este usuario');
+ 
+            }
+            // TODO: Hacer que los usuarios con rol Admin puedan eliminarlo
+
+            // Eliminamos el comentario
+            try {
+                const resultado = await Usuario.findByIdAndDelete({_id: id});
+                return 'Usuario eliminado';
             } catch (error) {
                 console.log(error);
             }
