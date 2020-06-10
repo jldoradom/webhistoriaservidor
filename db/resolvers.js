@@ -1,5 +1,6 @@
 const Usuario = require('../models/Usuario');
 const Blog = require('../models/Blog');
+const Comentario = require('../models/Comentario');
 const bcryptjs = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 require('dotenv').config({ path: 'variables.env' });
@@ -57,7 +58,38 @@ const resolvers = {
             // Retornar el resultado
             return blog;
 
+        },
+        // Funcion  para obtener todos los comentarios
+        obtenerComentarios: async () => {
+            try {
+                const comentarios = await Comentario.find({});
+                return comentarios;
+            } catch (error) {
+                console.log(error)
+            }
+
+        },
+        // Funcion para obtener un comentario por su id
+        obtenerComentario: async (_,{id}, ctx) => {
+             // Si el comentario existe o no 
+             const comentario = await Comentario.findById(id);
+             if(!comentario){
+                throw new Error('No existe este comentario del comentario');
+             }
+             // Retornar el resultado
+             return comentario;
+
+        },
+        obtenerComentariosUsuario: async (_,{}, ctx) => {
+            try {
+                const comentarios = await Comentario.find({ usuario: ctx.usuario.id }).populate('usuarios');
+                return comentarios;
+            } catch (error) {
+                console.log(error)
+            }
+
         }
+     
     },
    
 
@@ -164,7 +196,7 @@ const resolvers = {
                 throw new Error('No estas autorizado para eliminar esta entrada de Blog');
  
             }
-            // TODO: Hacer que los usuarios con rol Admin puedan editarlo
+            // TODO: Hacer que los usuarios con rol Admin puedan eliminarlo
 
             // Eliminamos la entrada del Blog
             try {
@@ -174,7 +206,78 @@ const resolvers = {
                 console.log(error);
             }
 
+        },
+        // Funcion para crear un comentario pasandole un id de Blog para poder insertar en ese Blog el nuevo comentario creado
+        // y el usuario que lo crea
+        nuevoComentario: async (_,{id, input}, ctx) => {
+            // obtenemos el texto del input
+            const { texto } = input;
+            // Verificar si la entrada de blog existe
+            const blogExiste  = await Blog.findById(id);
+            if(!blogExiste){
+               throw new Error('La entrada de Blog no fue encontrada');
+            }
+            // Crear el nuevo comentario
+            const nuevoComentario =  new Comentario(input);
+            // Asignar a que usuario le corresponde el comentario
+            nuevoComentario.usuario = ctx.usuario.id;
+            // Asignar a que blog le corresponde el comentario
+            nuevoComentario.blog = id;
+            // Guardar en la bbdd
+            try {
+                const resultado = await nuevoComentario.save();
+                // Insertamos el comentario a la entrada de Blog que corresponda.
+                await Blog.findOneAndUpdate({_id:id}, {$push:{comentarios: {texto,usuario:ctx.usuario.id,comentarioid:resultado._id}}},{new: true});
+                return resultado;
+            } catch (error) {
+                console.log(error);
+            }
+        },
+        actualizarComentario: async (_,{id, input},ctx) => {
+             // Verificar si la entrada de blog existe
+             const comentario  = await Comentario.findById(id);
+             if(!comentario){
+                throw new Error('El comentario no fue encontrada');
+             }
+             // Si el comentario pertenece al usuario
+            if( comentario.usuario.toString() !== ctx.usuario.id ){
+                throw new Error('No estas autorizado para modificar esta entrada de Blog');
+ 
+            }
+            // TODO: Hacer que los usuarios con rol Admin puedan editarlo
+            
+            // Guardar el comentario
+            try {
+                const resultado = await Comentario.findOneAndUpdate({_id:id}, input, {new: true});
+                return resultado;
+            } catch (error) {
+                console.log(error);
+            }
+
+        },
+        eliminarComentario: async (_,{id},ctx) => {
+            // Verificar si el comentario existe
+            const comentarioExiste  = await Comentario.findById(id);
+            if(!comentarioExiste){
+               throw new Error('el comentario no fue encontrada');
+            }
+              // Si el comentario pertenece al usuario
+              if( comentarioExiste.usuario.toString() !== ctx.usuario.id ){
+                throw new Error('No estas autorizado para eliminar este comentario');
+ 
+            }
+            // TODO: Hacer que los usuarios con rol Admin puedan eliminarlo
+
+            // Eliminamos el comentario
+            try {
+                const resultado = await Comentario.findByIdAndDelete({_id: id});
+                return 'Comentario eliminado';
+            } catch (error) {
+                console.log(error);
+            }
+
         }
+        
     }
 }
 

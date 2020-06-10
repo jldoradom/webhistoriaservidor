@@ -27,8 +27,12 @@ const typeDefs = gql`
         token: String
     }
     type Comentario {
-        comentario: String
+        id: ID
+        texto: String!
         usuario: ID
+        blog: ID
+        creado: String
+        actualizado: String 
     }
 
     input UsuarioInput {
@@ -48,7 +52,14 @@ const typeDefs = gql`
         titulo: String!
         imagen: String!
         descripcion: String!
+        # usuario: ID
+    }
+    input ComentarioBlogInput {
+       texto: String!
+    }
+    input ComentarioUsuarioInput {
         usuario: ID
+        comentario: ID
     }
     enum rol {
         NORMAL
@@ -62,6 +73,11 @@ const typeDefs = gql`
         obtenerBlogs: [Blog]
         obtenerBlog(id: ID!): Blog
         obtenerBlogsUsuario: [Blog]
+        # Comentarios
+        obtenerComentarios: [Comentario]
+        obtenerComentario(id: ID!) : Comentario
+        obtenerComentariosUsuario: [Comentario]
+      
 
     }
     type Mutation {
@@ -72,6 +88,10 @@ const typeDefs = gql`
         nuevoBlog(input: BlogInput!) : Blog 
         actualizarBlog(id: ID!, input: BlogInput!) : Blog 
         eliminarBlog(id: ID!) : String
+        # Comentarios
+        nuevoComentario(id: ID!, input: ComentarioBlogInput!) : Comentario
+        actualizarComentario(id: ID!, input: ComentarioBlogInput!) : Comentario
+        eliminarComentario(id: ID!) : String
 
     }
 `;

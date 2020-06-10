@@ -18,7 +18,8 @@ const BlogSchema = mongoose.Schema({
         type: Array
     },
     puntos:{
-        type: Number
+        type: Number,
+        default: 0
     },
     usuario:{
         type: mongoose.Schema.Types.ObjectId,
