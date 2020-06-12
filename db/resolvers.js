@@ -17,7 +17,11 @@ const crearToken = (usuario, secreta, expiresIn) => {
 const resolvers = {
     // Querys de GraqhQl (consultas)
     Query: {
-        // Obtener el usuario del context
+        obtenerUsuarioId: async (_, {id}, ctx) => {
+            const usuario = Usuario.findById(id);
+            return usuario;
+        },
+        // Obtener el usuario del context y devuelve su id 
         obtenerUsuario: async (_,{token}, ctx) => {
             // Obtenemos el token del usuario por su token
             const usuarioId = await jwt.verify(token, process.env.SECRETA );
