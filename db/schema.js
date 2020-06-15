@@ -12,6 +12,7 @@ const typeDefs = gql`
         curso: String
         ies: String
         logros: [String]
+        rol: rol
         creado: String
     }
     type Blog {
@@ -34,6 +35,28 @@ const typeDefs = gql`
         creado: String
         actualizado: String 
     }
+    type Curso {
+        id: ID
+        nombre: String
+        instituto: String
+        cantidadAlumnos: Int
+        localidad: String
+        provincia: String
+        estado: String
+        curso: String
+        usuarios: [Usuario]
+        creado: String
+    }
+
+    input CursoInput {
+        nombre: String!
+        instituto: String!
+        cantidadAlumnos: Int!
+        localidad: String!
+        provincia: String!
+        curso: String!
+    }
+
 
     input UsuarioInput {
         nombre: String!
@@ -66,6 +89,10 @@ const typeDefs = gql`
         ADMIN
         
     }
+    enum estado {
+        ACTUAL
+        PASADO
+    }
     type Query {
         # Usuarios
         obtenerUsuario(token: String!): Usuario
@@ -79,6 +106,9 @@ const typeDefs = gql`
         obtenerComentarios: [Comentario]
         obtenerComentario(id: ID!) : Comentario
         obtenerComentariosUsuario: [Comentario]
+        # Cursos
+        obtenerCursos: [Curso]
+
       
 
     }
@@ -96,6 +126,8 @@ const typeDefs = gql`
         nuevoComentario(id: ID!, input: ComentarioBlogInput!) : Comentario
         actualizarComentario(id: ID!, input: ComentarioBlogInput!) : Comentario
         eliminarComentario(id: ID!) : String
+        # Cursos
+        nuevoCurso(input: CursoInput!) : Curso
 
     }
 `;

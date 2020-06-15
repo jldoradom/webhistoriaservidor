@@ -1,6 +1,7 @@
 const Usuario = require('../models/Usuario');
 const Blog = require('../models/Blog');
 const Comentario = require('../models/Comentario');
+const Curso = require('../models/Curso');
 const bcryptjs = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 require('dotenv').config({ path: 'variables.env' });
@@ -93,6 +94,7 @@ const resolvers = {
              return comentario;
 
         },
+        // Funcion para obtener todos los comentarios
         obtenerComentariosUsuario: async (_,{}, ctx) => {
             try {
                 const comentarios = await Comentario.find({ usuario: ctx.usuario.id }).populate('usuarios');
@@ -101,6 +103,15 @@ const resolvers = {
                 console.log(error)
             }
 
+        },
+        // Funcion para obtener todos los cursos
+        obtenerCursos: async () => {
+            try {
+                const cursos = Curso.find({});
+                return cursos;
+            } catch (error) {
+                console.log(error);
+            }
         }
      
     },
@@ -346,7 +357,26 @@ const resolvers = {
                 console.log(error);
             }
 
+        },
+        // Funcion para crear nuevos cursos
+        nuevoCurso: async (_,{input}, ctx) => {
+            // Comprobar que el usuario es tipo admin
+            const usuario = await Usuario.findById(ctx.usuario.id.toString());
+            if(usuario.rol !== 'ADMIN'){
+                throw new Error('No estás autorizado para crear cursos');
+            }
+            // Crear el curso
+            const curso = new Curso(input);
+            // Guardar en bbdd
+            try {
+                const respuesta = await curso.save();
+                return respuesta;
+            } catch (error) {
+                console.log(error);
+            }
         }
+
+
         
     }
 }
