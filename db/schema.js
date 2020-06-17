@@ -108,6 +108,7 @@ const typeDefs = gql`
         obtenerComentariosUsuario: [Comentario]
         # Cursos
         obtenerCursos: [Curso]
+        obtenerCursoId(id: ID!): Curso
 
       
 
@@ -128,6 +129,8 @@ const typeDefs = gql`
         eliminarComentario(id: ID!) : String
         # Cursos
         nuevoCurso(input: CursoInput!) : Curso
+        editarCurso(id: ID!, input: CursoInput!) : Curso
+        eliminarCurso(id: ID!) : String
 
     }
 `;

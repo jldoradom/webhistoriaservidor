@@ -112,6 +112,15 @@ const resolvers = {
             } catch (error) {
                 console.log(error);
             }
+        },
+        // Obtener curso por id 
+        obtenerCursoId: async (_,{id}, ctx) => {
+            const curso = await Curso.findById(id);
+            if(!curso){
+                throw new Error('No existe el curso');
+            }
+            return curso;
+
         }
      
     },
@@ -192,13 +201,12 @@ const resolvers = {
             if(!blogExiste){
                throw new Error('La entrada de Blog no fue encontrada');
             }
-            // Si la entrada de Blog pertenece al usuario
-            if( blogExiste.usuario.toString() !== ctx.usuario.id ){
+            // Si la entrada de Blog pertenece al usuario o si es admin pordra editar
+            const usuario = await Usuario.findById(ctx.usuario.id.toString());
+            if( blogExiste.usuario.toString() !== ctx.usuario.id && usuario.rol !== 'ADMIN'){
                 throw new Error('No estas autorizado para modificar esta entrada de Blog');
  
             }
-            // TODO: Hacer que los usuarios con rol Admin puedan editarlo
-            
             // Guardar la entrada del Blog
             try {
                 const resultado = await Blog.findOneAndUpdate({_id:id}, input, {new: true});
@@ -374,6 +382,54 @@ const resolvers = {
             } catch (error) {
                 console.log(error);
             }
+        },
+        // Funcion para editar curso
+        editarCurso: async (_,{id, input}, ctx) => {
+            
+            // Comprobar que el usuario es tipo admin
+            const usuario = await Usuario.findById(ctx.usuario.id.toString());
+            if(usuario.rol !== 'ADMIN'){
+                throw new Error('No estás autorizado para editar cursos');
+            }
+
+            // Comprobar si existe el curso
+            const curso = Curso.findById(id);
+            if(!curso){
+                throw new Error('No existe el curso que intenta editar');
+
+            }
+
+            // Guardar el Usuario
+            try {
+                const resultado = await Curso.findOneAndUpdate({_id:id}, input, {new: true});
+                return resultado;
+                } catch (error) {
+                    console.log(error);
+            }
+
+
+        },
+        // Funcion para eliminar un curso por su id
+        eliminarCurso: async (_,{id},ctx) => {
+            // Verificar si el Curso existe
+            const curso  = await Curso.findById(id);
+            if(!curso){
+               throw new Error('El curso no fue encontrado');
+            }
+            // Comprobar que el usuario es tipo admin
+            const usuario = await Usuario.findById(ctx.usuario.id.toString());
+            if(usuario.rol !== 'ADMIN'){
+                throw new Error('No estás autorizado para editar cursos');
+            }
+
+            // Eliminamos el curso
+            try {
+                const resultado = await Curso.findByIdAndDelete({_id: id});
+                return 'Curso eliminado';
+            } catch (error) {
+                console.log(error);
+            }
+
         }
 
 
