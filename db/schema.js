@@ -133,6 +133,8 @@ const typeDefs = gql`
         nuevoCurso(input: CursoInput!) : Curso
         editarCurso(id: ID!, input: CursoInput!) : Curso
         eliminarCurso(id: ID!) : String
+        insertarUsuarioCurso(usuarioid: ID!, cursoid: ID!) : Curso 
+        eliminarUsuarioCurso(usuarioid: ID!, cursoid: ID!) : String
 
     }
 `;

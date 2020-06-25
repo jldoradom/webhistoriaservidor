@@ -398,7 +398,7 @@ const resolvers = {
             if(!usuario){
                throw new Error('El usuario no fue encontrado');
             }
-            
+
            // Comprobamos que el usuario es de tipo admin
            const usuarioAdmin = await Usuario.findById(ctx.usuario.id.toString());
            if(  usuarioAdmin.rol !== 'ADMIN'){
@@ -479,10 +479,74 @@ const resolvers = {
                 console.log(error);
             }
 
+        },
+        // Funcion para insertar usuarios en el curso 
+        insertarUsuarioCurso: async (_,{usuarioid, cursoid}, ctx) => {
+            // Comprobar que el usuario existe
+            const usuario = Usuario.findById(usuarioid);
+            if(!usuario){
+               throw new Error('El usuario no fue encontrado');
+            }
+            // Comprobar que el curso existe
+            const curso = Curso.findById(cursoid);
+            if(!curso){
+               throw new Error('El curso no fue encontrado');
+            }
+
+            // Comprobar que el usuario del ctx es admin
+            const usuarioAdmin = await Usuario.findById(ctx.usuario.id.toString());
+            if(  usuarioAdmin.rol !== 'ADMIN'){
+                throw new Error('No estás autorizado para insertar usuarios en el curso');
+            }
+            
+            const resultado = await curso.find({usuarios:usuarioid});
+            if(!resultado.length > 0){
+                  // Guardar en la bbdd el usuario en el curso seleccionado por id
+                    try {
+                        // Insertamos el usuario al curso que corresponda
+                        const resultado = await Curso.findOneAndUpdate({_id:cursoid}, {$push:{usuarios:usuarioid}},{new: true});
+                        return resultado;
+                    } catch (error) {
+                        console.log(error);
+                    }
+            } else {
+                throw new Error('El alumno ya esta en el curo');
+            }
+        },
+        eliminarUsuarioCurso: async (_,{usuarioid, cursoid},ctx) => {
+            // Comprobar que el usuario existe
+            const usuario = Usuario.findById(usuarioid);
+            if(!usuario){
+               throw new Error('El usuario no fue encontrado');
+            }
+            // Comprobar que el curso existe
+            const curso = Curso.findById(cursoid, 'Object');
+            if(!curso){
+               throw new Error('El curso no fue encontrado');
+            }
+
+            // Comprobar que el usuario del ctx es admin
+            const usuarioAdmin = await Usuario.findById(ctx.usuario.id.toString());
+            if(  usuarioAdmin.rol !== 'ADMIN'){
+                throw new Error('No estás autorizado para insertar usuarios en el curso');
+            }
+            
+            const resultado = await curso.find({usuarios:usuarioid});
+            if(resultado.length > 0){
+                  // Guardar en la bbdd el usuario en el curso seleccionado por id
+                    try {
+                        // Insertamos el usuario al curso que corresponda
+                       await Curso.findOneAndUpdate({_id:cursoid}, {$pull:{usuarios:usuarioid}},{new: true});
+                        // await curso.deleteOne({usuarios: usuarioid});
+                        return "Usuario eliminado del curso";
+                    } catch (error) {
+                        console.log(error);
+                    }
+            } else {
+                throw new Error('El alumno no esta en el curo');
+            }
+
         }
-
-
-        
     }
 }
 
