@@ -223,12 +223,13 @@ const resolvers = {
             if(!blogExiste){
                throw new Error('La entrada de Blog no fue encontrada');
             }
-              // Si la entrada de Blog pertenece al usuario
-              if( blogExiste.usuario.toString() !== ctx.usuario.id ){
+            // Si la entrada de Blog pertenece al usuario o es admin
+            const usuario = await Usuario.findById(ctx.usuario.id.toString());
+            if( blogExiste.usuario.toString() !== ctx.usuario.id && usuario.rol !== 'ADMIN'){
                 throw new Error('No estas autorizado para eliminar esta entrada de Blog');
  
             }
-            // TODO: Hacer que los usuarios con rol Admin puedan eliminarlo
+            
 
             // Eliminamos la entrada del Blog
             try {
@@ -272,12 +273,13 @@ const resolvers = {
              if(!comentario){
                 throw new Error('El comentario no fue encontrada');
              }
-             // Si el comentario pertenece al usuario
-            if( comentario.usuario.toString() !== ctx.usuario.id ){
+             // Si el comentario pertenece al usuario o es admin
+             const usuario = await Usuario.findById(ctx.usuario.id.toString());
+            if( comentario.usuario.toString() !== ctx.usuario.id && usuario.rol !== 'ADMIN'){
                 throw new Error('No estas autorizado para modificar esta entrada de Blog');
  
             }
-            // TODO: Hacer que los usuarios con rol Admin puedan editarlo
+           
             
             // Guardar el comentario
             try {
@@ -295,13 +297,12 @@ const resolvers = {
             if(!comentarioExiste){
                throw new Error('El comentario no fue encontrada');
             }
-              // Si el comentario pertenece al usuario
-              if( comentarioExiste.usuario.toString() !== ctx.usuario.id ){
+            // Si el comentario pertenece al usuario o es admin
+            const usuario = await Usuario.findById(ctx.usuario.id.toString());
+            if( comentarioExiste.usuario.toString() !== ctx.usuario.id && usuario.rol !== 'ADMIN'){
                 throw new Error('No estás autorizado para eliminar este comentario');
  
             }
-            // TODO: Hacer que los usuarios con rol Admin puedan eliminarlo
-
             // Eliminamos el comentario
             try {
                 const resultado = await Comentario.findByIdAndDelete({_id: id});
@@ -315,14 +316,34 @@ const resolvers = {
         editarUsuario: async (_,{input}, ctx) => {
             // destructuring al input para obtener los datos del input
            const { email, password } = input;
-           // Revisar si el usuario ya esta registrado, le pasamos un objeto con el email
-            const existeUsuario = await Usuario.findOne({email});
-           if(existeUsuario){
-               throw new Error('El usuario ya está registrado');
-           }
             // sacamos el id del context
             const id = ctx.usuario.id;
-            // Verificar si la entrada de blog existe
+            // Verificar si el usuario existe
+            const usuario  = await Usuario.findById(id);
+            if(!usuario){
+               throw new Error('El usuario no fue encontrado');
+            }
+
+            // Hashear el password
+           const salt = await bcryptjs.genSaltSync(10);
+           input.password = await bcryptjs.hash(password, salt);
+        
+           // Guardar el Usuario
+           try {
+               const resultado = await Usuario.findOneAndUpdate({_id:id}, input, {new: true});
+               return resultado;
+           } catch (error) {
+               console.log(error);
+           }
+
+        },
+        // Funcion para editar cualquier usuario por el admin
+        editarUsuariosAdmin: async (_,{id, input}, ctx) => {
+            // destructuring al input para obtener los datos del input
+           const { password } = input;
+        
+            
+            // Verificar si el usuario existe
             const usuario  = await Usuario.findById(id);
             if(!usuario){
                throw new Error('El usuario no fue encontrado');
@@ -332,8 +353,12 @@ const resolvers = {
            const salt = await bcryptjs.genSaltSync(10);
            input.password = await bcryptjs.hash(password, salt);
            
-           // TODO: Hacer que los usuarios con rol Admin puedan editarlo
-           
+           // Comprobamos que el usuario es de tipo admin
+           const usuarioAdmin = await Usuario.findById(ctx.usuario.id.toString());
+           if(  usuarioAdmin.rol !== 'ADMIN'){
+               throw new Error('No estás autorizado para editar usuarios');
+
+           }
            // Guardar el Usuario
            try {
                const resultado = await Usuario.findOneAndUpdate({_id:id}, input, {new: true});
@@ -355,8 +380,32 @@ const resolvers = {
                 throw new Error('No estás autorizado para eliminar este usuario');
  
             }
-            // TODO: Hacer que los usuarios con rol Admin puedan eliminarlo
+            
 
+            // Eliminamos el comentario
+            try {
+                const resultado = await Usuario.findByIdAndDelete({_id: id});
+                return 'Usuario eliminado';
+            } catch (error) {
+                console.log(error);
+            }
+
+        },
+        // Funcion para eliminar usuarios por su id si es el Admin
+        eliminarUsuariosAdmin: async (_,{id}, ctx) => {
+            // Verificar si el comentario existe
+            const usuario  = await Usuario.findById(id);
+            if(!usuario){
+               throw new Error('El usuario no fue encontrado');
+            }
+            
+           // Comprobamos que el usuario es de tipo admin
+           const usuarioAdmin = await Usuario.findById(ctx.usuario.id.toString());
+           if(  usuarioAdmin.rol !== 'ADMIN'){
+               throw new Error('No estás autorizado para editar usuarios');
+
+           }
+           
             // Eliminamos el comentario
             try {
                 const resultado = await Usuario.findByIdAndDelete({_id: id});

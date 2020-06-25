@@ -118,7 +118,9 @@ const typeDefs = gql`
         nuevoUsuario(input: UsuarioInput!): Usuario
         autenticarUsuario( input: AutenticarInput ): Token
         editarUsuario(input: UsuarioInput!) : Usuario
+        editarUsuariosAdmin(id: ID!, input: UsuarioInput!) : Usuario
         eliminarUsuario(id: ID!) : String
+        eliminarUsuariosAdmin(id: ID!) : String
         # Blog
         nuevoBlog(input: BlogInput!) : Blog 
         actualizarBlog(id: ID!, input: BlogInput!) : Blog 
