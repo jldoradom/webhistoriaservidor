@@ -2,6 +2,7 @@ const Usuario = require('../models/Usuario');
 const Blog = require('../models/Blog');
 const Comentario = require('../models/Comentario');
 const Curso = require('../models/Curso');
+const Trabajo = require('../models/Trabajo');
 const bcryptjs = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 require('dotenv').config({ path: 'variables.env' });
@@ -121,7 +122,16 @@ const resolvers = {
             }
             return curso;
 
-        }
+        },
+        // Funcion para obtener todos los trabajos
+        obtenerTrabajos: async () => {
+            try {
+                const trabajos = Trabajo.find({});
+                return trabajos;
+            } catch (error) {
+                console.log(error);
+            }
+        } 
      
     },
    
@@ -571,17 +581,38 @@ const resolvers = {
             // Insertar el punto al blog y actualizarlo y devolver el blog actualizado
             try {
                 // Insertamos al usuarios como los que ya han votado para que solo pueda votar una vez
-                await Blog.findOneAndUpdate({_id:id}, {$push:{usuarios:ctx.usuario.id}},{new: true});
+                const resultado = await Blog.findOneAndUpdate({_id:id}, {$push:{usuarios:ctx.usuario.id}},{new: true});
                 blogExiste.puntos = blogExiste.puntos + 1; 
                 blogExiste.save();
-                console.log(blogExiste.puntos);
-                return ("puntos sumados");
+                return resultado;
                 
             } catch(error) {
                 console.log(error);
             
             }
                
+        },
+        // Funcion para insertar nuevos trabajos
+        nuevoTrabajo: async (_,{input}, ctx) => {
+            // Comprobar que el usuario es tipo admin
+            const usuario = await Usuario.findById(ctx.usuario.id.toString());
+            if(usuario.rol !== 'ADMIN'){
+                throw new Error('No estás autorizado para crear cursos');
+            }
+            // Crear el trabajo
+            const trabajo = new Trabajo(input);
+            trabajo.usuario = ctx.usuario.id;
+            // TODO: Insetar la fecha en tipo date de la forma correcta
+            // pasando el string a tipo Date
+            const fechafin = new Date(input.fechafin);
+            // Guardar en bbdd
+            try {
+                const respuesta = await trabajo.save();
+                return respuesta;
+            } catch (error) {
+                console.log(error);
+            }
+
         }
     }
 }

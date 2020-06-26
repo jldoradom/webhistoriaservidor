@@ -1,6 +1,6 @@
 const mongoose = require('mongoose');
 
-const TrabajoSchema = mongoose.Scghema({
+const TrabajoSchema = mongoose.Schema({
     titulo: {
         type: String,
         required: true,
@@ -23,8 +23,8 @@ const TrabajoSchema = mongoose.Scghema({
     logros: {
         type: Array
     },
-    fecha_fin: {
-        type: Date
+    fechafin: {
+        type: String
     },
     creado: {
         type: Date,

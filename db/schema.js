@@ -59,6 +59,13 @@ const typeDefs = gql`
         creado: String
     }
 
+    input TrabajoInput {
+        titulo: String!
+        imagen: String!
+        descripcion: String!
+        fechafin: String!
+    }
+
     input CursoInput {
         nombre: String!
         instituto: String!
@@ -119,8 +126,8 @@ const typeDefs = gql`
         # Cursos
         obtenerCursos: [Curso]
         obtenerCursoId(id: ID!): Curso
-
-      
+        # Trabajos
+        obtenerTrabajos: [Trabajo]
 
     }
     type Mutation {
@@ -146,6 +153,8 @@ const typeDefs = gql`
         eliminarCurso(id: ID!) : String
         insertarUsuarioCurso(usuarioid: ID!, cursoid: ID!) : Curso 
         eliminarUsuarioCurso(usuarioid: ID!, cursoid: ID!) : String
+        # Trabajos
+        nuevoTrabajo(input: TrabajoInput!) : Trabajo
 
     }
 `;
