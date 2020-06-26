@@ -23,6 +23,7 @@ const typeDefs = gql`
         comentarios: [Comentario]
         puntos: Int
         usuario: ID
+        usuarios: [Usuario]
     }
     type Token {
         token: String
@@ -55,6 +56,7 @@ const typeDefs = gql`
         descripcion: String
         logros: [String]
         fechafin: String
+        creado: String
     }
 
     input CursoInput {

@@ -26,6 +26,9 @@ const BlogSchema = mongoose.Schema({
         required: true,
         ref: 'Usuario'
     },
+    usuarios: {
+        type: Array
+    },
     creado: {
         type: Date,
         default: Date.now()

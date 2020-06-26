@@ -520,7 +520,7 @@ const resolvers = {
                throw new Error('El usuario no fue encontrado');
             }
             // Comprobar que el curso existe
-            const curso = Curso.findById(cursoid, 'Object');
+            const curso = Curso.findById(cursoid);
             if(!curso){
                throw new Error('El curso no fue encontrado');
             }
@@ -550,7 +550,7 @@ const resolvers = {
         // Funcion para dar un voto o me gusta a una entrada de Blog
         votarBlog: async (_,{id}, ctx) => {
             // Comprobar que blog existe
-            const blogExiste  = await Blog.findById(id);
+            const blogExiste  =  Blog.findById(id);
             if(!blogExiste){
                throw new Error('La entrada de Blog no fue encontrada');
             }
@@ -561,22 +561,27 @@ const resolvers = {
             if(!usuarioExiste){
                throw new Error('El usuario no fue encontrado');
             }
+            // Comprobamos si el usuario ya ha votado 
+            const votado = await blogExiste.find({usuarios:usuario.id});
+            if(votado.length > 0){
+               throw new Error('Ya has votado este Blog');
+            }
 
 
             // Insertar el punto al blog y actualizarlo y devolver el blog actualizado
             try {
+                // Insertamos al usuarios como los que ya han votado para que solo pueda votar una vez
+                await Blog.findOneAndUpdate({_id:id}, {$push:{usuarios:ctx.usuario.id}},{new: true});
                 blogExiste.puntos = blogExiste.puntos + 1; 
                 blogExiste.save();
                 console.log(blogExiste.puntos);
                 return ("puntos sumados");
+                
             } catch(error) {
                 console.log(error);
             
             }
                
-
-
-
         }
     }
 }
