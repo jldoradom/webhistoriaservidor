@@ -175,9 +175,9 @@ const resolvers = {
         },
         // Funcion para crear entrada del Blog devuelve la entrada
         nuevoBlog: async (_,{input},ctx) => {
-            const { usuario } = input;
+            const usuario = await Usuario.findById(ctx.usuario.id.toString());
             // Verificar si exite el usuario
-            let usuarioExiste  = await Usuario.findById(usuario);
+            const usuarioExiste  = await Usuario.findById(usuario);
             if(!usuarioExiste){
                throw new Error('El usuario no fue encontrado');
             }
@@ -545,6 +545,37 @@ const resolvers = {
             } else {
                 throw new Error('El alumno no esta en el curo');
             }
+
+        },
+        // Funcion para dar un voto o me gusta a una entrada de Blog
+        votarBlog: async (_,{id}, ctx) => {
+            // Comprobar que blog existe
+            const blogExiste  = await Blog.findById(id);
+            if(!blogExiste){
+               throw new Error('La entrada de Blog no fue encontrada');
+            }
+
+            const usuario = await Usuario.findById(ctx.usuario.id.toString());
+            // Verificar si exite el usuario del context
+            const usuarioExiste  = await Usuario.findById(usuario);
+            if(!usuarioExiste){
+               throw new Error('El usuario no fue encontrado');
+            }
+
+
+            // Insertar el punto al blog y actualizarlo y devolver el blog actualizado
+            try {
+                blogExiste.puntos = blogExiste.puntos + 1; 
+                blogExiste.save();
+                console.log(blogExiste.puntos);
+                return ("puntos sumados");
+            } catch(error) {
+                console.log(error);
+            
+            }
+               
+
+
 
         }
     }

@@ -1,5 +1,3 @@
-
-
 const mongoose = require('mongoose');
 
 const CursoSchema = mongoose.Schema({

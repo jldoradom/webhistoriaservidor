@@ -47,6 +47,15 @@ const typeDefs = gql`
         usuarios: [Usuario]
         creado: String
     }
+    type Trabajo {
+        id: ID
+        titulo: String
+        imagen: String
+        usuario: ID
+        descripcion: String
+        logros: [String]
+        fechafin: String
+    }
 
     input CursoInput {
         nombre: String!
@@ -75,7 +84,6 @@ const typeDefs = gql`
         titulo: String!
         imagen: String!
         descripcion: String!
-        # usuario: ID
     }
     input ComentarioBlogInput {
        texto: String!
@@ -125,6 +133,7 @@ const typeDefs = gql`
         nuevoBlog(input: BlogInput!) : Blog 
         actualizarBlog(id: ID!, input: BlogInput!) : Blog 
         eliminarBlog(id: ID!) : String
+        votarBlog(id: ID!) : Blog
         # Comentarios
         nuevoComentario(id: ID!, input: ComentarioBlogInput!) : Comentario
         actualizarComentario(id: ID!, input: ComentarioBlogInput!) : Comentario

@@ -1,36 +1,37 @@
 const mongoose = require('mongoose');
 
-
-const BlogSchema = mongoose.Schema({
+const TrabajoSchema = mongoose.Scghema({
     titulo: {
         type: String,
-        required: true
+        required: true,
+        trim: true
     },
     imagen: {
         type: String,
         required: true
-    },
-    descripcion:{
-        type: String,
-        required: true
-    },
-    comentarios:{
-        type: Array
-    },
-    puntos:{
-        type: Number,
-        default: 1
     },
     usuario:{
         type: mongoose.Schema.Types.ObjectId,
         required: true,
         ref: 'Usuario'
     },
+    descripcion: {
+        type: String,
+        required: true,
+        trim: true
+    },
+    logros: {
+        type: Array
+    },
+    fecha_fin: {
+        type: Date
+    },
     creado: {
         type: Date,
         default: Date.now()
     }
+
 });
 
 
-module.exports = mongoose.model('Blog' , BlogSchema);
+module.exports = mongoose.model('Trabajo',TrabajoSchema)
