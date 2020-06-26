@@ -604,7 +604,8 @@ const resolvers = {
             trabajo.usuario = ctx.usuario.id;
             // TODO: Insetar la fecha en tipo date de la forma correcta
             // pasando el string a tipo Date
-            const fechafin = new Date(input.fechafin);
+            // const fechafin = new Date(input.fechafin);
+            // trabajo.fechafin = fechafin;
             // Guardar en bbdd
             try {
                 const respuesta = await trabajo.save();
