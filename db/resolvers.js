@@ -131,7 +131,15 @@ const resolvers = {
             } catch (error) {
                 console.log(error);
             }
-        } 
+        },
+        // Funcion para obtener un trabajo por su id
+        obtenerTrabajo: async (_,{id}, ctx) => {
+            const trabajo = await Trabajo.findById(id);
+            if(!trabajo){
+                throw new Error('No existe el curso');
+            }
+            return trabajo;
+        }
      
     },
    
@@ -613,6 +621,54 @@ const resolvers = {
             } catch (error) {
                 console.log(error);
             }
+
+        },
+        // Funcion para editar curso
+        editarTrabajo: async (_,{id, input}, ctx) => {
+            
+            // Comprobar que el usuario es tipo admin
+            const usuario = await Usuario.findById(ctx.usuario.id.toString());
+            if(usuario.rol !== 'ADMIN'){
+                throw new Error('No estás autorizado para editar cursos');
+            }
+
+            // Comprobar si existe el curso
+            const trabajo = Trabajo.findById(id);
+            if(!trabajo){
+                throw new Error('No existe el Trabajo que intenta editar');
+
+            }
+
+            // Guardar el Usuario
+            try {
+                const resultado = await Trabajo.findOneAndUpdate({_id:id}, input, {new: true});
+                return resultado;
+            } catch (error) {
+                    console.log(error);
+            }
+
+
+        },
+        // Funcion para eliminar un trabajo
+        eliminarTrabajo: async (_,{id},ctx) => {
+             // Verificar si el Curso existe
+             const trabajo  = await Trabajo.findById(id);
+             if(!trabajo){
+                throw new Error('El trabajo no fue encontrado');
+             }
+             // Comprobar que el usuario es tipo admin
+             const usuario = await Usuario.findById(ctx.usuario.id.toString());
+             if(usuario.rol !== 'ADMIN'){
+                 throw new Error('No estás autorizado para editar trabajos');
+             }
+ 
+             // Eliminamos el trabajo
+             try {
+                 const resultado = await Trabajo.findByIdAndDelete({_id: id});
+                 return 'Trabajo eliminado';
+             } catch (error) {
+                 console.log(error);
+             }
 
         }
     }

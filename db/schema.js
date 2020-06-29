@@ -128,6 +128,7 @@ const typeDefs = gql`
         obtenerCursoId(id: ID!): Curso
         # Trabajos
         obtenerTrabajos: [Trabajo]
+        obtenerTrabajo(id: ID!) : Trabajo
 
     }
     type Mutation {
@@ -155,6 +156,8 @@ const typeDefs = gql`
         eliminarUsuarioCurso(usuarioid: ID!, cursoid: ID!) : String
         # Trabajos
         nuevoTrabajo(input: TrabajoInput!) : Trabajo
+        editarTrabajo(id: ID!, input: TrabajoInput!) : Trabajo
+        eliminarTrabajo(id: ID!) : String
 
     }
 `;
