@@ -20,7 +20,7 @@ const typeDefs = gql`
         titulo: String
         imagen: String
         descripcion: String
-        comentarios: [Comentario]
+        # comentarios: [Comentario]
         puntos: Int
         usuario: ID
         usuarios: [Usuario]
@@ -58,14 +58,25 @@ const typeDefs = gql`
         fechafin: String
         creado: String
     }
-
+    type Logro {
+        id: ID!
+        nombre: String!
+        descripcion: String
+        usuario: ID
+        trabajo: ID
+        creado: String
+    }
+    input LogroInput {
+        nombre: String!
+        descripcion: String
+        trabajo: ID
+    }
     input TrabajoInput {
         titulo: String!
         imagen: String!
         descripcion: String!
         fechafin: String!
     }
-
     input CursoInput {
         nombre: String!
         instituto: String!
@@ -74,8 +85,6 @@ const typeDefs = gql`
         provincia: String!
         curso: String!
     }
-
-
     input UsuarioInput {
         nombre: String!
         apellido: String!
@@ -123,13 +132,17 @@ const typeDefs = gql`
         obtenerComentarios: [Comentario]
         obtenerComentario(id: ID!) : Comentario
         obtenerComentariosUsuario: [Comentario]
+        obtenerComentariosBlog(id: ID!) : [Comentario]
         # Cursos
         obtenerCursos: [Curso]
         obtenerCursoId(id: ID!): Curso
         # Trabajos
         obtenerTrabajos: [Trabajo]
         obtenerTrabajo(id: ID!) : Trabajo
-
+        # Logros
+        obtenerLogros: [Logro]
+        obtenerLogro(id: ID!) : Logro
+        obtenerLogrosTrabajo(id: ID!) : [Logro]
     }
     type Mutation {
         # Usuarios
@@ -158,7 +171,10 @@ const typeDefs = gql`
         nuevoTrabajo(input: TrabajoInput!) : Trabajo
         editarTrabajo(id: ID!, input: TrabajoInput!) : Trabajo
         eliminarTrabajo(id: ID!) : String
-
+        # Logro
+        nuevoLogro(input: LogroInput!) : Logro 
+        editarLogro(id: ID!, input: LogroInput!) : Logro 
+        eliminarLogro(id: ID!) : String
     }
 `;
 

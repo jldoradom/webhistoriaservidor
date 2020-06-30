@@ -14,9 +14,9 @@ const BlogSchema = mongoose.Schema({
         type: String,
         required: true
     },
-    comentarios:{
-        type: Array
-    },
+    // comentarios:{
+    //     type: Array
+    // },
     puntos:{
         type: Number,
         default: 1

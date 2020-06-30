@@ -3,6 +3,7 @@ const Blog = require('../models/Blog');
 const Comentario = require('../models/Comentario');
 const Curso = require('../models/Curso');
 const Trabajo = require('../models/Trabajo');
+const Logro = require('../models/Logro');
 const bcryptjs = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 require('dotenv').config({ path: 'variables.env' });
@@ -95,10 +96,20 @@ const resolvers = {
              return comentario;
 
         },
-        // Funcion para obtener todos los comentarios
+        // Funcion para obtener todos los comentarios de el usuario del context
         obtenerComentariosUsuario: async (_,{}, ctx) => {
             try {
                 const comentarios = await Comentario.find({ usuario: ctx.usuario.id }).populate('usuarios');
+                return comentarios;
+            } catch (error) {
+                console.log(error)
+            }
+
+        },
+        // Funcion para obtener todos los comentarios de un blog por su id
+        obtenerComentariosBlog: async (_,{id},ctx) =>{
+            try {
+                const comentarios = await Comentario.find({ blog: id }).populate('blogs');
                 return comentarios;
             } catch (error) {
                 console.log(error)
@@ -139,6 +150,32 @@ const resolvers = {
                 throw new Error('No existe el curso');
             }
             return trabajo;
+        },
+        // Funcion para obtener todos los logros
+        obtenerLogros: async () => {
+            try {
+                const logros = Logro.find({});
+                return logros;
+            } catch (error) {
+                console.log(error);
+            }
+        },
+        // Funcion para obtener un logro por su id
+        obtenerLogro: async (_,{id},ctx) => {
+            const logro = await Logro.findById(id);
+            if(!logro){
+                throw new Error('No existe el curso');
+            }
+            return logro; 
+        },
+        // Funcion para obtener los logros de un trabajo
+        obtenerLogrosTrabajo: async (_,{id},ctx) => {
+            try {
+                const logros = await Logro.find({ trabajo: id }).populate('trabajos');
+                return logros;
+            } catch (error) {
+                console.log(error)
+            }
         }
      
     },
@@ -278,7 +315,7 @@ const resolvers = {
             try {
                 const resultado = await nuevoComentario.save();
                 // Insertamos el comentario a la entrada de Blog que corresponda.
-                await Blog.findOneAndUpdate({_id:id}, {$push:{comentarios: {texto,usuario:ctx.usuario.id,comentarioid:resultado._id}}},{new: true});
+                // await Blog.findOneAndUpdate({_id:id}, {$push:{comentarios: {texto,usuario:ctx.usuario.id,comentarioid:resultado._id}}},{new: true});
                 return resultado;
             } catch (error) {
                 console.log(error);
@@ -586,7 +623,7 @@ const resolvers = {
             }
 
 
-            // Insertar el punto al blog y actualizarlo y devolver el blog actualizado
+            // Insertar el punto al blog, actualizarlo y devolver el blog actualizado
             try {
                 // Insertamos al usuarios como los que ya han votado para que solo pueda votar una vez
                 const resultado = await Blog.findOneAndUpdate({_id:id}, {$push:{usuarios:ctx.usuario.id}},{new: true});
@@ -670,6 +707,71 @@ const resolvers = {
                  console.log(error);
              }
 
+        },
+        // Funcion para crear nuevos logros
+        nuevoLogro: async (_,{input},ctx) => {
+            // Comprobar que el usuario es tipo admin
+            const usuario = await Usuario.findById(ctx.usuario.id.toString());
+            if(usuario.rol !== 'ADMIN'){
+                throw new Error('No estás autorizado para crear cursos');
+            }
+            // Crear el trabajo
+            const logro = new Logro(input);
+            logro.usuario = ctx.usuario.id;
+            // Guardar en bbdd
+            try {
+                const respuesta = await logro.save();
+                return respuesta;
+            } catch (error) {
+                console.log(error);
+            }
+            
+
+        },
+        // Funcion para editar un logro por su id
+        editarLogro: async (_,{id, input}, ctx) => {
+            // Comprobamos que el usuario es de tipo admin
+            const usuario = await Usuario.findById(ctx.usuario.id.toString());
+            if(usuario.rol !== 'ADMIN'){
+                throw new Error('No estás autorizado para editar cursos');
+            }
+
+            // Comprobar si existe el logro
+            const logro = Logro.findById(id);
+            if(!logro){
+                throw new Error('No existe el logro que intenta editar');
+
+            }
+
+            // Guardar en bbdd
+            try {
+                const resultado = await Logro.findOneAndUpdate({_id:id}, input, {new: true});
+                return resultado;
+            } catch (error) {
+                    console.log(error);
+            }
+
+        },
+        // Funcion para eliminar un logro por su id
+        eliminarLogro: async(_,{id},ctx) => {
+             // Verificar si el Logro existe
+             const logro  = await Logro.findById(id);
+             if(!logro){
+                throw new Error('El logro no fue encontrado');
+             }
+             // Comprobar que el usuario es tipo admin
+             const usuario = await Usuario.findById(ctx.usuario.id.toString());
+             if(usuario.rol !== 'ADMIN'){
+                 throw new Error('No estás autorizado para editar logros');
+             }
+ 
+             // Eliminamos el trabajo
+             try {
+                 const resultado = await Logro.findByIdAndDelete({_id: id});
+                 return 'Logro eliminado';
+             } catch (error) {
+                 console.log(error);
+             }
         }
     }
 }
