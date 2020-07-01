@@ -592,7 +592,6 @@ const resolvers = {
                     try {
                         // Insertamos el usuario al curso que corresponda
                        await Curso.findOneAndUpdate({_id:cursoid}, {$pull:{usuarios:usuarioid}},{new: true});
-                        // await curso.deleteOne({usuarios: usuarioid});
                         return "Usuario eliminado del curso";
                     } catch (error) {
                         console.log(error);
@@ -688,24 +687,26 @@ const resolvers = {
         },
         // Funcion para eliminar un trabajo
         eliminarTrabajo: async (_,{id},ctx) => {
-             // Verificar si el Curso existe
-             const trabajo  = await Trabajo.findById(id);
-             if(!trabajo){
+            // Verificar si el Curso existe
+            const trabajo  = await Trabajo.findById(id);
+            if(!trabajo){
                 throw new Error('El trabajo no fue encontrado');
-             }
-             // Comprobar que el usuario es tipo admin
-             const usuario = await Usuario.findById(ctx.usuario.id.toString());
-             if(usuario.rol !== 'ADMIN'){
-                 throw new Error('No estás autorizado para editar trabajos');
-             }
+            }
+            // Comprobar que el usuario es tipo admin
+            const usuario = await Usuario.findById(ctx.usuario.id.toString());
+            if(usuario.rol !== 'ADMIN'){
+                throw new Error('No estás autorizado para editar trabajos');
+            }
  
              // Eliminamos el trabajo
-             try {
-                 const resultado = await Trabajo.findByIdAndDelete({_id: id});
-                 return 'Trabajo eliminado';
-             } catch (error) {
-                 console.log(error);
-             }
+            try {
+                const resultado = await Trabajo.findByIdAndDelete({_id: id});
+                // Eliminar los logros asociados al trabajo
+                const resultadoremove = await Logro.remove({trabajo: id});
+                return 'Trabajo eliminado';
+            } catch (error) {
+                console.log(error);
+            }
 
         },
         // Funcion para crear nuevos logros

@@ -106,10 +106,6 @@ const typeDefs = gql`
     input ComentarioBlogInput {
        texto: String!
     }
-    input ComentarioUsuarioInput {
-        usuario: ID
-        comentario: ID
-    }
     enum rol {
         NORMAL
         ADMIN
