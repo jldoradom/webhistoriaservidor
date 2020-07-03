@@ -3,6 +3,20 @@ const { gql } = require('apollo-server');
 
 // Schema
 const typeDefs = gql`
+    # type UploadedFileResponse {
+    #   filename: String!
+    #   mimetype: String!
+    #   encoding: String!
+    #   url: String!
+    # }
+   
+    type UploadRespuesta {
+        id: ID!
+        filename: String!
+        mimetype: String!
+        encoding: String!
+        url: String!
+    }
     type Usuario {
         id: ID
         nombre: String
@@ -20,10 +34,10 @@ const typeDefs = gql`
         titulo: String
         imagen: String
         descripcion: String
-        # comentarios: [Comentario]
         puntos: Int
         usuario: ID
         usuarios: [Usuario]
+        categoria: categoria
     }
     type Token {
         token: String
@@ -43,7 +57,7 @@ const typeDefs = gql`
         cantidadAlumnos: Int
         localidad: String
         provincia: String
-        estado: String
+        estado: estado
         curso: String
         usuarios: [Usuario]
         creado: String
@@ -102,6 +116,7 @@ const typeDefs = gql`
         titulo: String!
         imagen: String!
         descripcion: String!
+        categoria: categoria!
     }
     input ComentarioBlogInput {
        texto: String!
@@ -115,7 +130,13 @@ const typeDefs = gql`
         ACTUAL
         PASADO
     }
+    enum categoria {
+        BLOG
+        NOTICIA
+    }
     type Query {
+        # imagenes
+        
         # Usuarios
         obtenerUsuario(token: String!): Usuario
         obtenerUsuarioId(id: ID!): Usuario
@@ -141,6 +162,8 @@ const typeDefs = gql`
         obtenerLogrosTrabajo(id: ID!) : [Logro]
     }
     type Mutation {
+        # Imaganes
+        singleUpload(file: Upload!): UploadRespuesta!
         # Usuarios
         nuevoUsuario(input: UsuarioInput!): Usuario
         autenticarUsuario( input: AutenticarInput ): Token

@@ -14,9 +14,6 @@ const BlogSchema = mongoose.Schema({
         type: String,
         required: true
     },
-    // comentarios:{
-    //     type: Array
-    // },
     puntos:{
         type: Number,
         default: 1
@@ -28,6 +25,10 @@ const BlogSchema = mongoose.Schema({
     },
     usuarios: {
         type: Array
+    },
+    categoria:{
+        type: String,
+        required: true
     },
     creado: {
         type: Date,

@@ -11,10 +11,14 @@
   "license": "ISC",
   "dependencies": {
     "apollo-server": "^2.14.2",
+    "apollo-upload-server": "^7.1.0",
     "bcryptjs": "^2.4.3",
     "dotenv": "^8.2.0",
+    "graphql": "^15.2.0",
     "jsonwebtoken": "^8.5.1",
-    "mongoose": "^5.9.18"
+    "mkdirp": "^1.0.4",
+    "mongoose": "^5.9.18",
+    "shortid": "^2.2.15"
   },
   "devDependencies": {
     "nodemon": "^2.0.4"

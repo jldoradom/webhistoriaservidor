@@ -4,8 +4,13 @@ const Comentario = require('../models/Comentario');
 const Curso = require('../models/Curso');
 const Trabajo = require('../models/Trabajo');
 const Logro = require('../models/Logro');
+const File = require('../models/File');
 const bcryptjs = require('bcryptjs');
 const jwt = require('jsonwebtoken');
+const GraphQLUpload = require('apollo-upload-server');
+const shortid = require('shortid'); 
+const mkdirp = require('mkdirp');
+const fs = require('fs');
 require('dotenv').config({ path: 'variables.env' });
 
 const crearToken = (usuario, secreta, expiresIn) => {
@@ -15,9 +20,42 @@ const crearToken = (usuario, secreta, expiresIn) => {
     return jwt.sign( { id, email, nombre, apellido }, secreta, { expiresIn } );
 }
 
+////// Subida archivos - imagenes
+const uploadDir = './uploads';
+mkdirp.sync(uploadDir);
+const storeFS = ({ stream, filename }) => {
+    const id = shortid.generate()
+    const path = `${uploadDir}/${id}-${filename}`
+    return new Promise((resolve, reject) =>
+      stream
+        .on('error', error => {
+          if (stream.truncated)
+            // Delete the truncated file
+            fs.unlinkSync(path)
+          reject(error)
+        })
+        .pipe(fs.createWriteStream(path))
+        .on('error', error => reject(error))
+        .on('finish', () => resolve({ id, path }))
+    )
+  }
+
+const processUpload = async upload => {
+    const { stream, filename, mimetype, encoding } = await upload
+    const { id, path } = await storeFS({ stream, filename })
+    return ({ id, filename, mimetype, encoding, path })
+}
+
+
+/////// Fin subida de archivos
+
+
+
 
 // Resolver
 const resolvers = {
+    // Subida archivos - imagenes
+    Upload: GraphQLUpload,
     // Querys de GraqhQl (consultas)
     Query: {
         obtenerUsuarioId: async (_, {id}, ctx) => {
@@ -289,7 +327,8 @@ const resolvers = {
             // Eliminamos la entrada del Blog
             try {
                 const resultado = await Blog.findByIdAndDelete({_id: id});
-                return 'Entrada eliminada';
+                const resultadoremove = await Comentario.remove({blog: id});
+                return 'Entrada de Blog y comentarios asociados eliminados';
             } catch (error) {
                 console.log(error);
             }
@@ -703,7 +742,7 @@ const resolvers = {
                 const resultado = await Trabajo.findByIdAndDelete({_id: id});
                 // Eliminar los logros asociados al trabajo
                 const resultadoremove = await Logro.remove({trabajo: id});
-                return 'Trabajo eliminado';
+                return 'Trabajo y logros asociados eliminados';
             } catch (error) {
                 console.log(error);
             }
@@ -773,7 +812,9 @@ const resolvers = {
              } catch (error) {
                  console.log(error);
              }
-        }
+        },
+        // 
+        singleUpload: (obj, { file }) => processUpload(file),
     }
 }
 

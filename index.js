@@ -1,4 +1,5 @@
 const { ApolloServer } = require('apollo-server');
+const {apolloUploadExpress} = require('apollo-upload-server');
 const typeDefs = require('./db/schema');
 const resolvers = require('./db/resolvers');
 const connectarDB = require('./config/db');
@@ -35,9 +36,11 @@ const server = new ApolloServer({
                 console.log(error);
             }
         }
-    }
+    },
+    apolloUploadExpress
     
 });
+
 
 
 
